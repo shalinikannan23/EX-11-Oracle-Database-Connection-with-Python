@@ -1,120 +1,93 @@
-# EX 11: Oracle Database Connection with Python
-## Date: 
-## AIM:
-To connect Oracle database with Python using cx_Oracle module.
-## PROCEDURE:
-1. Install cx-Oracle : With the command **pip install cx-Oracle**
-2. To Connect **connect():**
-   Now Establish a connection between the Python program and Oracle database by using connect() function. 
-```python
-con = cx_Oracle.connect('username/password@localhost')
-cursor(): To execute a SQL query and to provide results some special object is required that is nothing but cursor() object.
-cursor = con.cursor()
-```
-3.To Execute **execute/executemany method:**
-```python
-cursor.execute(sqlquery) - - - -> to execute a single query. 
-cursor.executemany(sqlqueries) - - - -> to execute a single query with multiple bind variables/place holders.
-```
-4. To Commit **commit():**
-   For DML(Data Manipulation Language) queries that comprise operations like update, insert, delete. We need to commit() then only the result reflects in the database.
-5. To Fetch rows: **fetchone(), fetchmany(int), fetchall():**
-fetchone() : This method is used to fetch one single row from the top of the result set.
-fetchmany(int): This method is used to fetch a limited number of rows based on the argument passed in it.
-fetchall() : This method is used to fetch all rows from the result set.
-6. To Close db connectivity **close():**
-   After all done it is mandatory to close all operations.
-```python
-cursor.close()
-con.close()
-```
-## PROGRAM:
-```python
-# importing module
-import cx_Oracle
 
-# Create a table in Oracle database
-try:
-	con = cx_Oracle.connect('tiger/scott@localhost:1521/xe')
-	print(con.version)
-	# Now execute the sqlquery
-	cursor = con.cursor()
-	# Creating a table employee
-	cursor.execute(
-		"create table employee(empid integer primary key, name varchar2(30), salary number(10, 2))")
-	print("Table Created successfully")
-except cx_Oracle.DatabaseError as e:
-	print("There is a problem with Oracle", e)
-# by writing finally if any error occurs
-# then also we can close the all database operation
-finally:
-	if cursor:
-		cursor.close()
-	if con:
-		con.close()
-```
-## OUTPUT:
-![image](https://github.com/dineshgl/EX-11-Oracle-Database-Connection-with-Python/assets/143793356/2bcf1487-985e-4933-bef0-9751295f0b28)
+# EXP NO 11: DATA BASE CONNECTIVITY USING  MYSQL AND PYTHON
 
-## PROGRAM:
-```python
-import cx_Oracle
-# Load data from a csv file into Oracle table using executemany
-try:
-	con = cx_Oracle.connect('tiger/scott@localhost:1521/xe')
-except cx_Oracle.DatabaseError as er:
-	print('There is an error in Oracle database:', er)
+### DATE: 25/10/23
+### AIM: 
+To create database connectivity and display the student table 
+### Steps:
+
+1. Install mysql,visual studio or python IDLE 3.12.
+2. Create a student database and table in MySQL.
+3. Pip install mysql-connector into python packages.
+4. Write a python progarm to perform the following:
+   a.) create a connection.
+   b.) fetch data and store it in result set.
+   c.) Display table rows.
+   d.) Close the connection.
+5. Run the program
+
+
+
+
+### Program:
+
+```
+#PRGRAM TO CONNECT MYSQL AND PYTHON
+#MENU DRIVEN PROGRAM
+
+#To establish connection
+import sys
+import mysql.connector as mc
+conn=mc.connect(host='localhost', user='root',passwd='1a2d8h12l',database='STUDENT')
+cur=conn.cursor()
+
+if conn.is_connected():
+    print("Successfully connected to MySQL")
 else:
-	try:
-		cur = con.cursor()
-		data = [[10007, 'Vikram', 48000.0], [10008, 'Sunil', 65000.1], [10009, 'Sameer', 75000.0]]
-		cur = con.cursor()
-		# Inserting multiple records into employee table
-		# (:1,:2,:3) are place holders. They pick data from a list supplied as argument
-		cur.executemany('insert into employee values(:1,:2,:3)', data)
-	except cx_Oracle.DatabaseError as er:
-		print('There is an error in Oracle database:', er)
-	except Exception as er:
-		print(er)
-	else:
-		# To commit the transaction manually
-		con.commit()
-		print('Multiple records are inserted successfully')
-finally:
-	if cur:
-		cur.close()
-	if con:
-		con.close()
-```
-## OUTPUT
-![image](https://github.com/dineshgl/EX-11-Oracle-Database-Connection-with-Python/assets/143793356/b9e771d7-d8b8-4057-ab58-ae1dcc942b1d)
+    print("Could not connect to MySQL")
 
-## PROGRAM:
-```python
-import cx_Oracle
-try:
-	con = cx_Oracle.connect('tiger/scott@localhost:1521/xe')
-except cx_Oracle.DatabaseError as er:
-	print('There is error in the Oracle database:', er)
-else:
-	try:
-		cur = con.cursor()
-		cur.execute('select * from employee where salary > :sal', {'sal': 50000})
-		rows = cur.fetchall()
-		print(rows)
-	except cx_Oracle.DatabaseError as er:
-		print('There is error in the Oracle database:', er)
-	except Exception as er:
-		print('Error:', er)
-	finally:
-		if cur:
-			cur.close()
-finally:
-	if con:
-		con.close()
-```
-## OUTPUT:
-![image](https://github.com/dineshgl/EX-11-Oracle-Database-Connection-with-Python/assets/143793356/fd028efc-1a80-4c84-a398-5c372bfec6dd)
+#INSERT INTO RECORD
+def insert_rec():
+    print("\nENTER RECORD DETAILS")
+    refno=int(input("Enter register No: "))
+    name=input("Enter Name: ")
+    dept=input("Enter Department: ")
+    yr=int(input("Enter Year of Study: "))
+    R=(refno, name, dept, yr)
+    qry="INSERT INTO STUDENT (REG_NO,NAME,DEPT,YEAR) VALUES (%s, %s, %s, %s)"
+    cur.execute(qry,R)
+    conn.commit()
+    print("Record inserted successfully")
+    return
 
-## RESULT:
-Thus the program for dababase connectivity with python has been executed successfully.
+#VIEW RECORD
+def view_rec():
+    print("\nFETCHING ALL RECORDS IN THE TABLE FOR VIEW")
+    qry="SELECT * FROM STUDENT"
+    cur.execute(qry)
+    print("_______________________________________________")
+    print("REGNO       NAME        DEPT       YEAR")
+    print("_______________________________________________")
+    data=cur.fetchall()
+    for i in data:
+        print(i[0],"\t",i[1],"\t",i[2],"\t",i[3])
+    print("_______________________________________________")
+    print("\nTotal no.of records = ",cur.rowcount)
+    return
+
+while(True):
+    print("-"*60)
+    print("           PYTHON-MYSQL CONNECTIVITY")
+    print("         STUDENT RECORD MANIPULATION")
+    print("-"*60)
+    print("1. INSERT \n2. DISPLAY RECORD \n3. EXIT")
+    ch=int(input("Enter the opertion's choice you want to perform[1-3] : "))
+           
+    if (ch==1):
+           insert_rec()
+    elif (ch==2):
+        view_rec()
+    else:
+        print("Thank You !!")
+        break
+```
+
+### Output:
+
+![op-1](https://github.com/AnnBlessy/DBMS/assets/119477835/0bee54e1-971b-429b-a078-e64b23f62d96)
+![op-2](https://github.com/AnnBlessy/DBMS/assets/119477835/429a8c9a-7a20-4b81-9734-a516a4541580)
+![op-3](https://github.com/AnnBlessy/DBMS/assets/119477835/00b18fd9-b52a-4199-8740-45d278ce76e2)
+
+
+### Result:
+Thust the database is connected and data displayed sucessfully.
